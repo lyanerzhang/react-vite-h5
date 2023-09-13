@@ -1,14 +1,19 @@
-import Index from '../container/Index/index.jsx';
-import About from '../container/About/index.jsx';
+import Home from '../container/Home/index.tsx';
+import Data from '../container/Data/index.tsx';
+import User from '../container/User/index.tsx';
 
 const routes = [
   {
     path: "/",
-    component: Index
+    component: Home
   },
   {
-    path: "/about",
-    component: About
+    path: "/data",
+    component: Data
+  },
+  {
+    path: "/user",
+    component: User
   }
 ]
 export default routes;

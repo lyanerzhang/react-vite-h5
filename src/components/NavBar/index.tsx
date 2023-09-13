@@ -1,18 +1,21 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon, TabBar } from 'zarm';
+import PropTypes from 'prop-types'
 
 const TabIcon = Icon.createFromIconfont('//at.alicdn.com/t/c/font_4250567_4xp2j1z9vu.js');
 
-export default function NavBar({ getCurTab }) {
+const NavBar = ({ showNav }) => {
     // 账单 统计 我的
     const [activeKey, setActiveKey] = useState('/');
+    const navigateTo = useNavigate()
     const changeTab = (value: string) => {
         setActiveKey(value)
-        getCurTab(value)
+        navigateTo(value)
     }
     return (
         <>
-            <TabBar activeKey={activeKey} onChange={changeTab}>
+            <TabBar visible={showNav} activeKey={activeKey} onChange={changeTab}>
                 <TabBar.Item itemKey="/" title="账单" icon={
                     <TabIcon type='icon-dingdanliebiao'></TabIcon>
                 }></TabBar.Item>
@@ -26,3 +29,8 @@ export default function NavBar({ getCurTab }) {
         </>
     )
 }
+NavBar.propTypes = {
+    showNav: PropTypes.bool
+}
+
+export default NavBar;
