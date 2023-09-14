@@ -1,10 +1,10 @@
 // src/utils/axios.js
 import axios from 'axios'
-import { Toast } from 'zarm'
+import { Toast } from 'antd-mobile'
 
 const MODE = import.meta.env.MODE // 环境变量
 
-axios.defaults.baseURL = MODE == 'development' ? '/api' : 'http://api.chennick.wang'
+axios.defaults.baseURL = MODE == 'development' ? 'http://127.0.0.1:7001/api' : 'http://api.chennick.wang'
 axios.defaults.withCredentials = true
 axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
 axios.defaults.headers['Authorization'] = `${localStorage.getItem('token') || null}`
