@@ -13,7 +13,15 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [agree, setAgree] = useState(false);
+  const checkAgree = (_: any, value: boolean) => {
+    if (value === true) {
+      return Promise.resolve()
+    } else {
+      return Promise.reject(new Error("请勾选协议"))
+    }
+  }
   const onFinish = () => {
+    console.log(11)
     if (type === 'lgin') {
       post('/user/login', {
         username,
@@ -80,10 +88,10 @@ const Login = () => {
               type === 'register' ? (
                 <Form.Item
                   name="agree"
-                  rules={[{ required: true, message: '请勾选协议' }]}>
-                    <Space direction='vertical'>
-                      <Checkbox checked={agree} onChange={(val) => setAgree(val)}>阅读并同意</Checkbox>
-                    </Space>
+                  rules={[{ required: true }, { validator: checkAgree }]}>
+                    <Checkbox checked={agree} onChange={(val) => {
+                      setAgree(val)
+                    }}>阅读并同意</Checkbox>
                 </Form.Item>
               ): (<></>)
             }
