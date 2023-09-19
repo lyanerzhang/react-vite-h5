@@ -21,13 +21,13 @@ const Login = () => {
     }
   }
   const onFinish = () => {
-    console.log(11)
-    if (type === 'lgin') {
+    if (type === 'login') {
       post('/user/login', {
         username,
         password
-      }).then(() => {
+      }).then((data: any) => {
         Toast.show("登录成功")
+        localStorage.setItem('token', data.token)
         navigateTo("/home")
       }).catch((err: string | ToastShowProps) => {
         Toast.show(err)

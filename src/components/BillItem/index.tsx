@@ -1,19 +1,25 @@
-import { useState, userEffect } from "react"
-import { Card } from "antd-mobile"
+import { useState, useEffect } from "react"
+import { Card, List } from "antd-mobile"
 import PropTypes from 'prop-types'
+import CustomIcon from '../CustomIcon';
 import dayjs from 'dayjs';
+import { typeMap } from '@/utils/type';
 import s from './style.module.less'
-export const BillItem = ({bill}) => {
+export const BillItem = ({ bill }) => {
   // 接收父组件的值
-  console.log(bill)
   const [income, setIncome] = useState(0)
   const [expense, setExpense] = useState(0)
-  userEffect(() => {
+  useEffect(() => {
     const _income = bill.bills.filter(i => i.pay_type == 2).reduce((curr, item) => {
-      curr += Number(item.amount).toFixed(2)
+      curr += Number(item.amount)
       return curr
     }, 0)
     setIncome(_income)
+    const _expense = bill.bills.filter(i => i.pay_type === 1).reduce((curr, item) => {
+      curr += Number(item.amount)
+      return curr
+    }, 0)
+    setExpense(_expense)
   }, [bill.bills])
   return (
     <div className={s.item}>
@@ -33,6 +39,25 @@ export const BillItem = ({bill}) => {
             </div>
           </div>
         }>
+        {
+          bill && bill.bills.map((item: any) => <List className={s.bill}
+            key={item.id}>
+            <List.Item
+              title={
+                <>
+                  <CustomIcon
+                    className={s.itemIcon}
+                    type={item.type_id ? typeMap[item.type_id].icon : 1}
+                  />
+                  <span>{ item.type_name }</span>
+                </>
+              }
+              extra={<span style={{ color: item.pay_type == 2 ? 'red' : '#39be77' }}>{`${item.pay_type == 1 ? '-' : '+'}${item.amount}`}</span>}
+              description={<div>{dayjs(Number(item.date)).format('HH:mm')} {item.remark ? `| ${item.remark}` : ''}</div>}
+              >
+            </List.Item>
+          </List>)
+        }
       </Card>
     </div>
   )

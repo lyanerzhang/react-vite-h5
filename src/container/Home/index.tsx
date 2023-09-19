@@ -1,25 +1,42 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DownOutline } from 'antd-mobile-icons'
+// import { Toast, ToastShowProps, Calendar } from 'antd-mobile';
 import { BillItem } from '@/components/BillItem';
+// import { get } from '@/utils'
+import PopupDate from '@/components/PopupDate';
+import PopupType from '@/components/PopupType';
+import dayjs from 'dayjs'
 import s from './style.module.less'
 
 const Home = () => {
-  const [list, setList] = useState([
-    {
-      bills: [
-        {
-          amount: "25.00",
-          date: "1623390740000",
-          id: 911,
-          pay_type: 1,
-          remark: "",
-          type_id: 1,
-          type_name: "餐饮"
-        }
-      ],
-      date: '2021-06-11'
-    }
-  ]); // 账单列表
+  const [list, setList] = useState([]); // 账单列表
+  const [currentTime, setCurrentTime] = useState(dayjs().format("YYYY-MM-DD"))
+  const monthRef = useRef(null)
+  const [typeVisible, setTypeVisible] = useState(false)
+
+  // 选择类型
+  const typeToggle = () => {
+    setTypeVisible(!typeVisible)
+  }
+
+  // 选择日期
+  const monthToggle = () => {
+    monthRef.current && monthRef.current.show()
+  }
+  const selectMonth = (date) => {
+    setCurrentTime(date)
+  }
+
+  // 请求数据
+  // useEffect(() => {
+  //   get('/bill/list', {
+
+  //   }).then(res => {
+  //     console.log(res)
+  //   }).catch((err: string | ToastShowProps) => {
+  //     Toast.show(err)
+  //   });
+  // }, [])
   return <div className={s.home}>
     <div className={s.header}>
       <div className={s.dataWrap}>
@@ -28,10 +45,10 @@ const Home = () => {
       </div>
       <div className={s.typeWrap}>
         <div className={s.left}>
-          <span className={s.title}>类型 <DownOutline className={s.arrow} /></span>
+          <span className={s.title} onClick={typeToggle}>类型 <DownOutline className={s.arrow} /></span>
         </div>
         <div className={s.right}>
-          <span className={s.time}>2022-06 <DownOutline className={s.arrow} /></span>
+          <span className={s.time} onClick={monthToggle}>{currentTime} <DownOutline className={s.arrow} /></span>
         </div>
       </div>
     </div>
@@ -40,6 +57,8 @@ const Home = () => {
         return <BillItem bill={item} key={index}></BillItem>
       })}
     </div>
+    <PopupType show={typeVisible}></PopupType>
+    <PopupDate ref={monthRef} onSelect={selectMonth}></PopupDate>
   </div>
 }
 
