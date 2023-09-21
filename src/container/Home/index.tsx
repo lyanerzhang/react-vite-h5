@@ -44,11 +44,7 @@ const Home = () => {
   const addToggle = () => {
     addRef.current && addRef.current.show()
   }
-  // 删除账单
-  const deleteBill = () => {
-    console.log('de')
-    getBill()
-  }
+
   // 获取账单
   const getBill = () => {
     get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${page}&page_size=5`).then((res: any) => {
@@ -82,7 +78,7 @@ const Home = () => {
     </div>
     <div className={s.contentWrap}>
       { list.map((item, index) => {
-        return <BillItem bill={item} key={index} onDelete={deleteBill}></BillItem>
+        return <BillItem bill={item} key={index} onDelete={getBill}></BillItem>
       })}
     </div>
     <div className={s.add} onClick={addToggle}>
@@ -90,7 +86,7 @@ const Home = () => {
     </div>
     <PopupType show={typeVisible} getShow={ () => { setTypeVisible(false) } } onSelect={selectType}></PopupType>
     <PopupMonth ref={monthRef} onSelect={selectMonth}></PopupMonth>
-    <PopupAddBill ref={addRef}></PopupAddBill>
+    <PopupAddBill ref={addRef} onAdd={getBill}></PopupAddBill>
   </div>
 }
 

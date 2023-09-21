@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import s from './style.module.less';
 import cx from 'classnames';
 
-const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
+const PopupAddBill = forwardRef(({onAdd, onReload}, ref) => {
   const dateRef = useRef(null)
   const [show, setShow] = useState(false) // 内部控制弹窗显示隐藏。
   const [payType, setPayType] = useState(1); // 支出或收入类型
@@ -68,6 +68,7 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
       setAmount("")
       setCurrentType({})
       setRemark("")
+      onAdd()
     }).catch((err: string | ToastShowProps) => {
       Toast.show(err)
     })
