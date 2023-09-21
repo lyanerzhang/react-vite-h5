@@ -38,7 +38,7 @@ export const BillItem = ({ bill, onDelete }) => {
       return curr
     }, 0)
     setIncome(_income)
-    const _expense = bill.bills.filter(i => i.pay_type === 1).reduce((curr, item) => {
+    const _expense = bill.bills.filter(i => i.pay_type == 1).reduce((curr, item) => {
       curr += Number(item.amount)
       return curr
     }, 0)
