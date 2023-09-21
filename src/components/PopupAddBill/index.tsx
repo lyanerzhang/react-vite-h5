@@ -12,22 +12,24 @@ import cx from 'classnames';
 const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
   const dateRef = useRef(null)
   const [show, setShow] = useState(false) // 内部控制弹窗显示隐藏。
-  const [payType, setPayType] = useState('expense'); // 支出或收入类型
+  const [payType, setPayType] = useState(1); // 支出或收入类型
   const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
+  const [dateTime, setDateTime] = useState(dayjs().unix() * 1000)
   const [amount, setAmount] = useState("") // 账单价格
   const [expense, setExpense] = useState([]) // 支出账单类型
   const [income, setIncome] = useState([]) // 收入账单类型
   const [currentType, setCurrentType] = useState({});
   const [remark, setRemark] = useState("")
 
-  const changeType = (type:string) => {
+  const changeType = (type:number) => {
     setPayType(type)
   }
   const dateToggle = () => {
     dateRef.current && dateRef.current.show()
   }
   const selectDate = (date: string) => {
-    setDate(date)
+    setDateTime(dayjs(date).unix() * 1000)
+    setDate(dayjs(date).format("YYYY-MM-DD"))
   }
   const handleMoney = (value: string) => {
     // 当输入的值为 '.' 且 已经存在 '.'，则不让其继续字符串相加。
@@ -43,15 +45,29 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
   }
   // 确定新增账单
   const confirmMoney = () => {
+    if (!amount) {
+      Toast.show("请输入金额")
+      return
+    }
+    if (!remark) {
+      Toast.show("请输入备注")
+      return
+    }
     post('/bill/add', {
       pay_type: payType,
       amount,
-      date,
+      date: dateTime,
       type_id: currentType.id,
       type_name: currentType.name,
       remark
     }).then(res => {
-      console.log('成功')
+      Toast.show('新增账单成功')
+      setShow(false)
+      setPayType(1)
+      setDate(dayjs().format("YYYY-MM-DD"))
+      setAmount("")
+      setCurrentType({})
+      setRemark("")
     }).catch((err: string | ToastShowProps) => {
       Toast.show(err)
     })
@@ -63,8 +79,8 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
 
   useEffect(() => {
     get('/bill/types').then(res => {
-      setIncome(res.filter((i: { type: number; }) => i.type == 1))
-      setExpense(res.filter((i: { type: number; }) => i.type == 2))
+      setExpense(res.filter((i: { type: number; }) => i.type == 1))
+      setIncome(res.filter((i: { type: number; }) => i.type == 2))
     }).catch((err: string | ToastShowProps) => {
       Toast.show(err)
     })
@@ -95,8 +111,8 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
         <div className={s.addWrap}>
           <div className={s.filter}>
             <div className={s.type}>
-              <span onClick={() => changeType('expense')} className={cx({ [s.expense]: true, [s.active]: payType == 'expense' })}>支出</span>
-              <span onClick={() => changeType('income')} className={cx({ [s.income]: true, [s.active]: payType == 'income' })}>收入</span>
+              <span onClick={() => changeType(1)} className={cx({ [s.expense]: true, [s.active]: payType == 1 })}>支出</span>
+              <span onClick={() => changeType(2)} className={cx({ [s.income]: true, [s.active]: payType == 2 })}>收入</span>
             </div>
             <div className={s.time} onClick={() => dateToggle()}>
               {date}<DownOutline className={s.arrow} />
@@ -109,9 +125,9 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
           <div className={s.typeWarp}>
             <div className={s.typeBody}>
               {
-                (payType == 'expense' ? expense : income).map(item =>
+                (payType == 1 ? expense : income).map(item =>
                 <div onClick={() => choseType(item)} key={item.id} className={s.typeItem}>
-                  <span className={cx({[s.iconfontWrap]: true, [s.expense]: payType == 'expense', [s.income]: payType == 'income', [s.active]: currentType.id == item.id})}>
+                  <span className={cx({[s.iconfontWrap]: true, [s.expense]: payType == 1, [s.income]: payType == 2, [s.active]: currentType.id == item.id})}>
                     <CustomIcon className={s.iconfont} type={typeMap[item.id].icon} />
                   </span>
                   <span>{item.name}</span>

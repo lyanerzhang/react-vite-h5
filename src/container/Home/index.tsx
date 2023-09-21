@@ -3,7 +3,7 @@ import { DownOutline,EditSFill } from 'antd-mobile-icons'
 import { Toast, ToastShowProps } from 'antd-mobile';
 import { BillItem } from '@/components/BillItem';
 import { get } from '@/utils'
-import PopupDate from '@/components/PopupDate';
+import PopupMonth from '@/components/PopupMonth';
 import PopupType from '@/components/PopupType';
 import PopupAddBill from '@/components/PopupAddBill';
 import dayjs from 'dayjs'
@@ -14,7 +14,7 @@ const Home = () => {
   const monthRef = useRef(null) // 日期选择器
   const addRef = useRef(); // 添加账单 ref
   const [list, setList] = useState([]); // 账单列表
-  const [currentTime, setCurrentTime] = useState(dayjs().format("YYYY-MM-DD"))
+  const [currentMonth, setCurrentMonth] = useState(dayjs().format("YYYY-MM"))
   const [currentType, setCurrentType] = useState("全部")
   const [currentTypeId, setCurrentTypeId] = useState("all")
   const [typeVisible, setTypeVisible] = useState(false)
@@ -37,17 +37,21 @@ const Home = () => {
     monthRef.current && monthRef.current.show()
   }
   const selectMonth = (date: string) => {
-    setCurrentTime(date)
+    setCurrentMonth(date)
   }
 
   // 添加账单
   const addToggle = () => {
     addRef.current && addRef.current.show()
   }
-
-  // 请求数据
-  useEffect(() => {
-    get(`/bill/list?type_id=${currentTypeId}&date=${currentTime}&page=${page}&page_size=5`).then((res: any) => {
+  // 删除账单
+  const deleteBill = () => {
+    console.log('de')
+    getBill()
+  }
+  // 获取账单
+  const getBill = () => {
+    get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${page}&page_size=5`).then((res: any) => {
       setList(res.list)
       setTotalExpense(res.totalExpense)
       setTotalIncome(res.totalIncome)
@@ -55,7 +59,12 @@ const Home = () => {
     }).catch((err: string | ToastShowProps) => {
       Toast.show(err)
     });
-  }, [currentTypeId, currentTime, page])
+  }
+
+  // 请求数据
+  useEffect(() => {
+    getBill()
+  }, [currentTypeId, currentMonth, page])
   return <div className={s.home}>
     <div className={s.header}>
       <div className={s.dataWrap}>
@@ -67,20 +76,20 @@ const Home = () => {
           <span className={s.title} onClick={typeToggle}>{currentType} <DownOutline className={s.arrow} /></span>
         </div>
         <div className={s.right}>
-          <span className={s.time} onClick={monthToggle}>{currentTime} <DownOutline className={s.arrow} /></span>
+          <span className={s.time} onClick={monthToggle}>{currentMonth} <DownOutline className={s.arrow} /></span>
         </div>
       </div>
     </div>
     <div className={s.contentWrap}>
       { list.map((item, index) => {
-        return <BillItem bill={item} key={index}></BillItem>
+        return <BillItem bill={item} key={index} onDelete={deleteBill}></BillItem>
       })}
     </div>
     <div className={s.add} onClick={addToggle}>
       <EditSFill />
     </div>
     <PopupType show={typeVisible} getShow={ () => { setTypeVisible(false) } } onSelect={selectType}></PopupType>
-    <PopupDate ref={monthRef} onSelect={selectMonth}></PopupDate>
+    <PopupMonth ref={monthRef} onSelect={selectMonth}></PopupMonth>
     <PopupAddBill ref={addRef}></PopupAddBill>
   </div>
 }

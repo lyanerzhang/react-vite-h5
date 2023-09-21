@@ -24,7 +24,8 @@ const PopupDate = forwardRef(({onSelect}, ref) => {
         setVisible(false)
       }}>
       <Calendar selectionMode='single' defaultValue={curDate} onChange={val => {
-        onSelect(dayjs(val).format("YYYY-MM-DD"))
+        console.log('val', val)
+        onSelect(val)
         setCurDate(dayjs(val).format("YYYY-MM-DD"))
         setVisible(false)
       }}></Calendar>

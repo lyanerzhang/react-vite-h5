@@ -25,7 +25,9 @@ function App() {
             }></Route>) }
         </Routes>
       </div>
-      <NavBar className={s.bottomBar} showNav={showNav}></NavBar>
+      <div className={s.bottomBar} >
+        <NavBar showNav={showNav}></NavBar>
+      </div>
     </div>
   )
 }

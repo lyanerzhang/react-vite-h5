@@ -1,14 +1,37 @@
 import { useState, useEffect } from "react"
-import { Card, List } from "antd-mobile"
+import { Card, List, SwipeAction, Dialog, Toast, ToastShowProps } from "antd-mobile"
 import PropTypes from 'prop-types'
 import CustomIcon from '../CustomIcon';
 import dayjs from 'dayjs';
 import { typeMap } from '@/utils/type';
+import { post } from '@/utils'
 import s from './style.module.less'
-export const BillItem = ({ bill }) => {
+export const BillItem = ({ bill, onDelete }) => {
   // 接收父组件的值
   const [income, setIncome] = useState(0)
   const [expense, setExpense] = useState(0)
+  let id = 0
+  const rightActions = [{
+    key: "delete",
+    text: "删除",
+    color: "danger",
+    onClick: async () => {
+      await Dialog.confirm({
+        content: '确定要删除吗？',
+        onConfirm: () => {
+          handleDeleteBill()
+        }
+      })
+    }
+  }]
+  const handleDeleteBill = () => {
+    post(`/bill/delete?id=${id}`).then(res => {
+      onDelete()
+      Toast.show("删除成功")
+    }).catch((err: string | ToastShowProps) => {
+      Toast.show(err)
+    })
+  }
   useEffect(() => {
     const _income = bill.bills.filter(i => i.pay_type == 2).reduce((curr, item) => {
       curr += Number(item.amount)
@@ -42,20 +65,28 @@ export const BillItem = ({ bill }) => {
         {
           bill && bill.bills.map((item: any) => <List className={s.bill}
             key={item.id}>
-            <List.Item
-              title={
-                <>
-                  <CustomIcon
-                    className={s.itemIcon}
-                    type={item.type_id ? typeMap[item.type_id].icon : 1}
-                  />
-                  <span>{ item.type_name }</span>
-                </>
-              }
-              extra={<span style={{ color: item.pay_type == 2 ? 'red' : '#39be77' }}>{`${item.pay_type == 1 ? '-' : '+'}${item.amount}`}</span>}
-              description={<div>{dayjs(Number(item.date)).format('HH:mm')} {item.remark ? `| ${item.remark}` : ''}</div>}
-              >
-            </List.Item>
+            <SwipeAction key={item} rightActions={rightActions} onAction={(action):void => {
+              id = item.id
+            }}>
+              <List.Item
+                title={
+                  <>
+                    <CustomIcon
+                      className={s.itemIcon}
+                      type={item.type_id ? typeMap[item.type_id].icon : 1}
+                    />
+                    <span>{ item.type_name }</span>
+                  </>
+                }
+                extra={<span style={{ color: item.pay_type == 2 ? 'red' : '#39be77' }}>{`${item.pay_type == 1 ? '-' : '+'}${item.amount}`}</span>}
+                description={
+                  <div>
+                    {dayjs(Number(item.date)).format('HH:mm:ss')} {item.remark ? `| ${item.remark}` : ''}
+                  </div>
+                }
+                >
+              </List.Item>
+            </SwipeAction>
           </List>)
         }
       </Card>
