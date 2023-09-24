@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { DownOutline,EditSFill } from 'antd-mobile-icons'
-import { Toast, ToastShowProps, InfiniteScroll } from 'antd-mobile';
+import { Toast, ToastShowProps, InfiniteScroll, PullToRefresh } from 'antd-mobile';
 import { BillItem } from '@/components/BillItem';
 import { get } from '@/utils'
 import PopupMonth from '@/components/PopupMonth';
 import PopupType from '@/components/PopupType';
 import PopupAddBill from '@/components/PopupAddBill';
 import dayjs from 'dayjs'
+import useLatest from '@/hooks/useLatest'
 import s from './style.module.less'
 
 const Home = () => {
@@ -18,8 +19,9 @@ const Home = () => {
   const [currentType, setCurrentType] = useState("全部")
   const [currentTypeId, setCurrentTypeId] = useState("all")
   const [typeVisible, setTypeVisible] = useState(false)
-  const [page, setPage] = useState(1)
-  const [totalPage, setTotalPage] = useState(0); // 分页总数
+  const page = useLatest(1)
+  const totalPage = useLatest(0); // 分页总数
+  console.log('test0200202')
   const [totalExpense, setTotalExpense] = useState(0); // 总支出
   const [totalIncome, setTotalIncome] = useState(0); // 总收入
   const [hasMore, setHasMore] = useState(true)
@@ -29,7 +31,7 @@ const Home = () => {
     setTypeVisible(!typeVisible)
   }
   const selectType = (type_id: string, type_name: string) => {
-    setPage(1);
+    page.current = 1;
     setCurrentTypeId(type_id)
     setCurrentType(type_name)
   }
@@ -39,7 +41,7 @@ const Home = () => {
     monthRef.current && monthRef.current.show()
   }
   const selectMonth = (date: string) => {
-    setPage(1);
+    page.current = 1;
     setCurrentMonth(date)
   }
 
@@ -50,26 +52,39 @@ const Home = () => {
 
   // 加载更多
   async function loadMore() {
-    console.log("loadmore")
-    if (page >= totalPage) {
+    console.log('---------', page.current, totalPage.current)
+    await getBill()
+    if (page.current < totalPage.current) {
+      console.log(55)
+      page.current++;
+      setHasMore(true)
+    } else {
+      console.log(66)
       setHasMore(false)
     }
-    await getBill()
-    setPage(page + 1)
   }
 
+  async function test () {
+    setInterval(async () => {
+      console.log('---------', page.current, totalPage.current)
+      // await getBill()
+      totalPage.current++
+    }, 2000)
+  }
+  test()
   // 获取账单
   const getBill = () => {
     return new Promise((resolve, reject) => {
-      get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${page}&page_size=5`).then((res: any) => {
-        if (page == 1) {
+      get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${page.current}&page_size=5`).then((res: any) => {
+        if (page.current == 1) {
           setList(res.list)
         } else {
           setList(list.concat(res.list))
         }
         setTotalExpense(res.totalExpense)
         setTotalIncome(res.totalIncome)
-        setTotalPage(res.total)
+        // totalPage.current = res.totalPage
+        // console.log('total', totalPage)
         resolve(res.list.length)
       }).catch((err: string | ToastShowProps) => {
         Toast.show(err)
@@ -81,16 +96,14 @@ const Home = () => {
   const useUpdateEffect = (fn: { (): Promise<unknown>; (): void; }, inputs: any[]) => {
     const didMountRef = useRef(false);
     useEffect(() => {
-      if (didMountRef.current) fn();
-      else didMountRef.current = true;
+      if (didMountRef.current) {
+        fn()
+      } else {
+        didMountRef.current = true
+      }
     }, inputs);
   };
-  useUpdateEffect(getBill, [currentTypeId, currentMonth])
-  // 请求数据
-  // useEffect(() => {
-  //   getBill()
-  //   console.log(222)
-  // }, [currentTypeId, currentMonth])
+  // useUpdateEffect(getBill, [currentTypeId, currentMonth])
   return <div className={s.home}>
     <div className={s.header}>
       <div className={s.dataWrap}>
@@ -107,14 +120,20 @@ const Home = () => {
       </div>
     </div>
     <div className={s.contentWrap}>
-      { list.map((item, index) => {
-        return <BillItem bill={item} key={index} onDelete={getBill}></BillItem>
-      })}
+      {/* <PullToRefresh  onRefresh={async () => {
+        page.current = 1
+        totalPage.current = 0
+        await getBill()
+      }}>
+        { list.map((item, index) => {
+          return <BillItem bill={item} key={index} onDelete={getBill}></BillItem>
+        })}
+        <InfiniteScroll loadMore={loadMore} hasMore={hasMore}></InfiniteScroll>
+      </PullToRefresh> */}
     </div>
     <div className={s.add} onClick={addToggle}>
       <EditSFill />
     </div>
-    <InfiniteScroll loadMore={loadMore} hasMore={hasMore}></InfiniteScroll>
     <PopupType show={typeVisible} getShow={ () => { setTypeVisible(false) } } onSelect={selectType}></PopupType>
     <PopupMonth ref={monthRef} onSelect={selectMonth}></PopupMonth>
     <PopupAddBill ref={addRef} onAdd={getBill}></PopupAddBill>
