@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from 'react-router-dom'
 import { Card, List, SwipeAction, Dialog, Toast, ToastShowProps } from "antd-mobile"
 import PropTypes from 'prop-types'
 import CustomIcon from '../CustomIcon';
@@ -7,6 +8,7 @@ import { typeMap } from '@/utils/type';
 import { post } from '@/utils'
 import s from './style.module.less'
 export const BillItem = ({ bill, onDelete }) => {
+  const navigateTo = useNavigate()
   // 接收父组件的值
   const [income, setIncome] = useState(0)
   const [expense, setExpense] = useState(0)
@@ -32,6 +34,9 @@ export const BillItem = ({ bill, onDelete }) => {
       Toast.show(err)
     })
   }
+  const goToDetail = (item) => {
+    navigateTo(`/detail?id=${item.id}`)
+  };
   useEffect(() => {
     const _income = bill.bills.filter(i => i.pay_type == 2).reduce((curr, item) => {
       curr += Number(item.amount)
@@ -83,6 +88,9 @@ export const BillItem = ({ bill, onDelete }) => {
                   <div>
                     {dayjs(Number(item.date)).format('HH:mm:ss')} {item.remark ? `| ${item.remark}` : ''}
                   </div>
+                }
+                onClick={() => 
+                  goToDetail(item)
                 }
                 >
               </List.Item>

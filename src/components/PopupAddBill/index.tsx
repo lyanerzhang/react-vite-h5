@@ -9,7 +9,11 @@ import dayjs from 'dayjs'
 import s from './style.module.less';
 import cx from 'classnames';
 
-const PopupAddBill = forwardRef(({onAdd, onReload}, ref) => {
+const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
+
+  const id = Object.keys(detail).length && detail.id;
+  console.log("获取账单详情---ccc", detail)
+
   const dateRef = useRef(null)
   const [show, setShow] = useState(false) // 内部控制弹窗显示隐藏。
   const [payType, setPayType] = useState(1); // 支出或收入类型
@@ -21,6 +25,13 @@ const PopupAddBill = forwardRef(({onAdd, onReload}, ref) => {
   const [currentType, setCurrentType] = useState({});
   const [remark, setRemark] = useState("")
 
+  // 获取账单详情
+  useEffect(() => {
+    console.log("获取账单详情 effect")
+    if (detail.id) {
+      setPayType(detail.pay_type)
+    }
+  }, [detail])
   const changeType = (type:number) => {
     setPayType(type)
   }
@@ -100,7 +111,8 @@ const PopupAddBill = forwardRef(({onAdd, onReload}, ref) => {
   }
   return (
     <>
-      <Popup visible={show} showCloseButton={true}
+    下下下 <div>{ show }22 {payType}</div>
+      {/* <Popup visible={show} showCloseButton={true}
         getContainer={null}
         bodyStyle={{height: '80%'}}
         onMaskClick={() => {
@@ -147,7 +159,7 @@ const PopupAddBill = forwardRef(({onAdd, onReload}, ref) => {
           onConfirm={() => confirmMoney()}
           ></NumberKeyboard>
         <PopupDate ref={dateRef} onSelect={selectDate}></PopupDate>
-      </Popup>
+      </Popup> */}
     </>
   )
 })

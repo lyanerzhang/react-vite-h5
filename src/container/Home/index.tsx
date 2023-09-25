@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { DownOutline,EditSFill } from 'antd-mobile-icons'
+import { DownOutline, EditSFill } from 'antd-mobile-icons'
 import { Toast, ToastShowProps, InfiniteScroll, PullToRefresh } from 'antd-mobile';
 import { BillItem } from '@/components/BillItem';
 import { get } from '@/utils'
@@ -7,7 +7,6 @@ import PopupMonth from '@/components/PopupMonth';
 import PopupType from '@/components/PopupType';
 import PopupAddBill from '@/components/PopupAddBill';
 import dayjs from 'dayjs'
-import useLatest from '@/hooks/useLatest'
 import s from './style.module.less'
 
 const Home = () => {
@@ -52,30 +51,20 @@ const Home = () => {
 
   // 加载更多
   async function loadMore() {
-    let res = await getBill()
-    console.log(page, totalPage)
+    let res = await getBill('loadmore')
     if (res) {
-      setPage(page+1)
       setHasMore(true)
     } else {
-      setPage(1)
       setHasMore(false)
     }
-    // setPage(page+1)
-    // setHasMore(res)
-    // if (page < totalPage) {
-    //   setPage(page+1);
-    //   setHasMore(true)
-    // } else {
-    //   setHasMore(false)
-    // }
   }
 
   // 获取账单
-  const getBill = () => {
+  const getBill = (isLoadMore?: string) => {
     return new Promise((resolve, reject) => {
-      get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${page}&page_size=5`).then((res: any) => {
-        if (page == 1) {
+      const _page = isLoadMore ? page : 1
+      get(`/bill/list?type_id=${currentTypeId}&date=${currentMonth}&page=${_page}&page_size=5`).then((res: any) => {
+        if (_page == 1) {
           setList(res.list)
         } else {
           setList(list.concat(res.list))
@@ -84,6 +73,12 @@ const Home = () => {
         setTotalIncome(res.totalIncome)
         setTotalPage(res.totalPage)
         resolve(res.list.length)
+        if (isLoadMore) {
+          setPage(_page + 1)
+        } else {
+          console.log('初始化第一页')
+          setPage(1)
+        }
       }).catch((err: string | ToastShowProps) => {
         Toast.show(err)
         reject(false)
@@ -92,14 +87,13 @@ const Home = () => {
   }
 
   const useUpdateEffect = (fn: { (): Promise<unknown>; (): void; }, inputs: any[]) => {
-    // const didMountRef = useRef(false);
+    const didMountRef = useRef(false);
     useEffect(() => {
-      // if (didMountRef.current) {
-      //   fn()
-      // } else {
-      //   didMountRef.current = true
-      // }
-      fn()
+      if (didMountRef.current) {
+        fn()
+      } else {
+        didMountRef.current = true
+      }
     }, inputs);
   };
   useUpdateEffect(getBill, [currentTypeId, currentMonth])
@@ -121,6 +115,8 @@ const Home = () => {
     <div className={s.contentWrap}>
       <PullToRefresh  onRefresh={async () => {
         setPage(1);
+        setHasMore(true)
+        getBill();
       }}>
         { list.map((item, index) => {
           return <BillItem bill={item} key={index} onDelete={getBill}></BillItem>

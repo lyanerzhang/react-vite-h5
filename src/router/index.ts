@@ -2,6 +2,7 @@ import Login from "../container/Login/index.tsx";
 import Home from '../container/Home/index.tsx';
 import Data from '../container/Data/index.tsx';
 import User from '../container/User/index.tsx';
+import Detail from "../container/Detail/index.tsx";
 
 const routes = [
   {
@@ -19,6 +20,10 @@ const routes = [
   {
     path: "/user",
     component: User
+  },
+  {
+    path: "/detail",
+    component: Detail
   }
 ]
 export default routes;
