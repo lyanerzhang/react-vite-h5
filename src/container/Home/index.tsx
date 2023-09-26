@@ -129,7 +129,7 @@ const Home = () => {
     </div>
     <PopupType show={typeVisible} getShow={ () => { setTypeVisible(false) } } onSelect={selectType}></PopupType>
     <PopupMonth ref={monthRef} onSelect={selectMonth}></PopupMonth>
-    <PopupAddBill ref={addRef} onAdd={getBill}></PopupAddBill>
+    <PopupAddBill ref={addRef} onReload={getBill}></PopupAddBill>
   </div>
 }
 

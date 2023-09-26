@@ -9,10 +9,9 @@ import dayjs from 'dayjs'
 import s from './style.module.less';
 import cx from 'classnames';
 
-const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
+const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
 
   const id = Object.keys(detail).length && detail.id;
-  console.log("获取账单详情---ccc", detail)
 
   const dateRef = useRef(null)
   const [show, setShow] = useState(false) // 内部控制弹窗显示隐藏。
@@ -27,11 +26,29 @@ const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
 
   // 获取账单详情
   useEffect(() => {
-    console.log("获取账单详情 effect")
     if (detail.id) {
       setPayType(detail.pay_type)
+      setDate(dayjs(Number(detail.date)).format("YYYY-MM-DD"))
+      setAmount(detail.amount)
+      setRemark(detail.remark)
+      setCurrentType({
+        id: detail.type_id,
+        name: detail.type_name
+      })
     }
   }, [detail])
+
+  useEffect(() => {
+    get('/bill/types').then(res => {
+      setExpense(res.filter((i: { type: number; }) => i.type == 1))
+      setIncome(res.filter((i: { type: number; }) => i.type == 2))
+      if (!id) {
+        setCurrentType({})
+      }
+    }).catch((err: string | ToastShowProps) => {
+      Toast.show(err)
+    })
+  }, [])
   const changeType = (type:number) => {
     setPayType(type)
   }
@@ -55,7 +72,7 @@ const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
     setAmount(_amount)
   }
   // 确定新增账单
-  const confirmMoney = () => {
+  const confirmMoney = async () => {
     if (!amount) {
       Toast.show("请输入金额")
       return
@@ -64,39 +81,41 @@ const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
       Toast.show("请输入备注")
       return
     }
-    post('/bill/add', {
+    let params = {
       pay_type: payType,
       amount,
       date: dateTime,
       type_id: currentType.id,
       type_name: currentType.name,
       remark
-    }).then(res => {
-      Toast.show('新增账单成功')
-      setShow(false)
-      setPayType(1)
-      setDate(dayjs().format("YYYY-MM-DD"))
-      setAmount("")
-      setCurrentType({})
-      setRemark("")
-      onAdd()
-    }).catch((err: string | ToastShowProps) => {
-      Toast.show(err)
-    })
+    }
+    if (id) {
+      await post('/bill/update', Object.assign({}, params, {id})).then(res => {
+        Toast.show('编辑账单成功')
+      }).catch((err: string | ToastShowProps) => {
+        Toast.show(err)
+      })
+    } else {
+      await post('/bill/add', params).then(res => {
+        Toast.show('新增账单成功')
+        setPayType(1)
+        setDate(dayjs().format("YYYY-MM-DD"))
+        setAmount("")
+        setCurrentType({})
+        setRemark("")
+      }).catch((err: string | ToastShowProps) => {
+        Toast.show(err)
+      })
+    }
+    setShow(false)
+    if (onReload) {
+      onReload()
+    }
   }
   // 选择账单类型
   const choseType = (item) => {
     setCurrentType(item)
   }
-
-  useEffect(() => {
-    get('/bill/types').then(res => {
-      setExpense(res.filter((i: { type: number; }) => i.type == 1))
-      setIncome(res.filter((i: { type: number; }) => i.type == 2))
-    }).catch((err: string | ToastShowProps) => {
-      Toast.show(err)
-    })
-  }, [])
 
   // 通过 forwardRef 拿到外部传入的 ref，并添加属性，使得父组件可以通过 ref 控制子组件。
   if (ref) {
@@ -111,8 +130,7 @@ const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
   }
   return (
     <>
-    下下下 <div>{ show }22 {payType}</div>
-      {/* <Popup visible={show} showCloseButton={true}
+      <Popup visible={show} showCloseButton={true}
         getContainer={null}
         bodyStyle={{height: '80%'}}
         onMaskClick={() => {
@@ -159,7 +177,7 @@ const PopupAddBill = forwardRef(({detail = {}, onAdd, onReload}, ref) => {
           onConfirm={() => confirmMoney()}
           ></NumberKeyboard>
         <PopupDate ref={dateRef} onSelect={selectDate}></PopupDate>
-      </Popup> */}
+      </Popup>
     </>
   )
 })

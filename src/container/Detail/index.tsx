@@ -15,12 +15,9 @@ const Detail = () => {
   const location = useLocation()
   const { id } = qs.parse(location.search);
   const [detail, setDetail] = useState({});
-  const [showDetail, setShowDetail] = useState(false)
   const editRef = useRef(); // 添加账单 ref
   // 添加账单
   const editBill = () => {
-    // setShowDetail(true)
-    setShowDetail((v) => !v)
     editRef.current && editRef.current.show()
   }
   const getDetail = async () => {
@@ -61,7 +58,7 @@ const Detail = () => {
         <span onClick={() => editBill()}><CustomIcon type='tianjia' />编辑</span>
       </div>
     </div>
-    { showDetail && <PopupAddBill ref={editRef} detail={detail} onReload={getDetail}></PopupAddBill> }
+    { <PopupAddBill ref={editRef} detail={detail} onReload={getDetail}></PopupAddBill> }
   </div>
 }
 
