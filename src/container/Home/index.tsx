@@ -35,7 +35,7 @@ const Home = () => {
     setCurrentType(type_name)
   }
 
-  // 选择日期
+  // 选择月份
   const monthToggle = () => {
     monthRef.current && monthRef.current.show()
   }
