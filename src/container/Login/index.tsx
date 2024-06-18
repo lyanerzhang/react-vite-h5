@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Form, Button, Input, Toast, ToastShowProps, Checkbox, Space } from 'antd-mobile';
 import { EyeInvisibleOutline, EyeOutline} from 'antd-mobile-icons';
@@ -13,6 +13,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [agree, setAgree] = useState(false);
+  const formRef = useRef<any>()
   const checkAgree = (_: any, value: boolean) => {
     if (value === true) {
       return Promise.resolve()
@@ -23,7 +24,7 @@ const Login = () => {
   const onFinish = () => {
     if (type === 'login') {
       post('/user/login', {
-        username,
+        username: formRef.current.getFieldValue('username'),
         password
       }).then((data: any) => {
         Toast.show("登录成功")
@@ -34,7 +35,7 @@ const Login = () => {
       });
     } else {
       post('/user/register', {
-        username,
+        username: formRef.current.getFieldValue('username'),
         password
       }).then(() => {
         Toast.show("注册成功")
@@ -49,8 +50,16 @@ const Login = () => {
       <Card className={s.auth}>
         <div className={s.head} />
         <div className={s.tab}>
-          <span className={cx({ [s.avtive]: type == 'login' })} onClick={() => setType('login')}>登录</span>
-          <span className={cx({ [s.avtive]: type == 'register' })} onClick={() => setType('register')}>注册</span>
+          <span className={cx({ [s.avtive]: type == 'login' })} onClick={() => {
+            formRef.current.setFieldsValue({username: ""})
+            setPassword("")
+            setType('login')
+          }}>登录</span>
+          <span className={cx({ [s.avtive]: type == 'register' })} onClick={() => {
+            formRef.current.setFieldsValue({username: ""})
+            setPassword("")
+            setType('register')
+          }}>注册</span>
         </div>
         <div className={s.form}>
           <Form
@@ -60,13 +69,14 @@ const Login = () => {
               <Button block type='submit' color='primary'>
                 {type == 'login' ? '登  录' : '注  册'}
               </Button>
-            }>
+            }
+            ref={formRef}>
             <Form.Item
-              name='name'
+              name='username'
               label='账号'
               rules={[{ required: true, message: '账号不能为空' }]}
             >
-              <Input value={username} placeholder='请输入账号' onChange={(val) => { setUsername(val) }} />
+              <Input placeholder='请输入账号' />
             </Form.Item>
             <Form.Item
               name='password'
@@ -74,7 +84,8 @@ const Login = () => {
               rules={[{ required: true, message: '密码不能为空' }]}
             >
               <div className={s.password}>
-                <Input value={password} placeholder='请输入密码' onChange={(val) => { setPassword(val) }} type={visible ? 'text' : 'password'} className={s.input} />
+                <Input value={password} placeholder='请输入密码' onChange={(val) => { setPassword(val) }} 
+                  type={visible ? 'text' : 'password'} className={s.input} />
                 <div className={s.eye}>
                   {!visible ? (
                     <EyeInvisibleOutline onClick={() => setVisible(true)} />

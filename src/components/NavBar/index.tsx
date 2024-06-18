@@ -8,13 +8,13 @@ import {
 } from 'antd-mobile-icons';
 import PropTypes from 'prop-types'
 
-const NavBar = ({ showNav }) => {
+const NavBar = ({ showNav, tabName }) => {
     // 账单 统计 我的
-    const [activeKey, setActiveKey] = useState('/home');
+    const [activeKey, setActiveKey] = useState('/' + tabName);
     const navigateTo = useNavigate()
     const changeTab = (value: string) => {
         setActiveKey(value)
-        navigateTo(value)
+        navigateTo(`${value}?tab=${value.substring(1)}`)
     }
     if (showNav) {
         return (

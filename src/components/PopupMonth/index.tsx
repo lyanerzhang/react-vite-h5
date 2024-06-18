@@ -1,10 +1,13 @@
-import { Popup, DatePickerView } from 'antd-mobile';
+import { Popup, DatePickerView, Space, Button } from 'antd-mobile';
 import { useState, forwardRef } from 'react';
+import useLatest from '@/hooks/useLatest';
 import dayjs from 'dayjs'
+import s from './style.module.less';
 
 const PopupMonth = forwardRef(({onSelect}, ref) => {
   const [visible, setVisible] = useState(false)
-  const [curMonth, setCurMonth] = useState(new Date(dayjs().format("YYYY-MM")))
+  // const [curMonth, setCurMonth] = useState(new Date(dayjs().format("YYYY-MM")))
+  const curMonth = useLatest(new Date(dayjs().format("YYYY-MM")))
   const monthRenderLabel = (type:string, data:number) => {
     switch (type) {
       case 'year':
@@ -32,14 +35,25 @@ const PopupMonth = forwardRef(({onSelect}, ref) => {
       }}
       onClose={() => {
         setVisible(false)
-      }}>
-      <DatePickerView defaultValue={curMonth} renderLabel={monthRenderLabel}
+      }}
+      className={s.monthWrap}>
+      <Space className={s.optionWrap} justify={"between"}>
+        <Button shape='rectangular' fill='outline' size='small' onClick={() => {
+          setVisible(false)
+        }}>取消</Button>
+        <Button shape='rectangular' color='primary' fill='outline' size='small' onClick={() => {
+          onSelect(curMonth.current)
+          setVisible(false)
+        }}>确认</Button>
+      </Space>
+      <DatePickerView 
+        defaultValue={curMonth.current}
+        renderLabel={monthRenderLabel}
         precision='month'
         onChange={val => {
-          onSelect(dayjs(val).format("YYYY-MM"))
-          setCurMonth(dayjs(val).format("YYYY-MM"))
-          setVisible(false)
-        }}></DatePickerView>
+          curMonth.current = dayjs(val).format("YYYY-MM")
+        }}>
+      </DatePickerView>
     </Popup>
   )
 })

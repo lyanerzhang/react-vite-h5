@@ -77,10 +77,10 @@ const PopupAddBill = forwardRef(({detail = {}, onReload}, ref) => {
       Toast.show("请输入金额")
       return
     }
-    if (!remark) {
-      Toast.show("请输入备注")
-      return
-    }
+    // if (!remark) {
+    //   Toast.show("请输入备注")
+    //   return
+    // }
     let params = {
       pay_type: payType,
       amount,

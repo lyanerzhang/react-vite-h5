@@ -52,6 +52,7 @@ const Home = () => {
   // 加载更多
   async function loadMore() {
     let res = await getBill('loadmore')
+    console.log('加载------- loadmore')
     if (res) {
       setHasMore(true)
     } else {
@@ -96,7 +97,7 @@ const Home = () => {
       }
     }, inputs);
   };
-  useUpdateEffect(getBill, [currentTypeId, currentMonth])
+  useUpdateEffect(loadMore, [currentTypeId, currentMonth])
   return <div className={s.home}>
     <div className={s.header}>
       <div className={s.dataWrap}>
