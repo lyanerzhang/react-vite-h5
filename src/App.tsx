@@ -3,7 +3,6 @@ import {
   Routes,
   Route,
   useLocation,
-  useParams,
 } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
