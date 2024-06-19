@@ -12,6 +12,7 @@
   "dependencies": {
     "amfe-flexible": "^2.2.1",
     "antd-mobile": "^5.32.3",
+    "antd-mobile-icons": "^0.3.0",
     "axios": "^1.5.0",
     "dayjs": "^1.11.9",
     "postcss-pxtorem": "^6.0.0",
