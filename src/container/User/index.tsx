@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Grid } from 'antd-mobile'
 import { SetOutline, RightOutline, LockOutline, TeamOutline } from 'antd-mobile-icons'
-import { get } from '@/utils'
+import { get, baseFileURL } from '@/utils'
 import cx from 'classnames';
 import s from './style.module.less';
 
@@ -34,7 +34,7 @@ const Index = () => {
             <b>{userinfo.signature}</b>
           </span>
         </div>
-        <img className={s.avatar} style={{ width: 60, height: 60, borderRadius: 8 }} src={userinfo.avatar} alt="" />
+        <img className={s.avatar} style={{ width: 60, height: 60, borderRadius: 8 }} src={baseFileURL + userinfo.avatar} alt="" />
       </div>
       <div className={cx(s.content)}>
         <div className={cx(s.item)}>
