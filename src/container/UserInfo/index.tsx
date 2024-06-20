@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavBar, Card, ImageUploader, Input, Button, Toast } from 'antd-mobile'
 import type { ImageUploadItem } from 'antd-mobile'
 import { useNavigate } from 'react-router-dom'
-import { get, post, baseURL } from '@/utils'
+import { get, post, baseURL, baseFileURL } from '@/utils'
 import axios from 'axios'
 import s from './style.module.less';
 
@@ -75,7 +75,7 @@ const UserInfo = () => {
       setAvatar(res.avatar)
       setSignature(res.signature)
       setFileList([{
-        url: res.avatar,
+        url: baseFileURL + res.avatar,
       }])
     })
   }

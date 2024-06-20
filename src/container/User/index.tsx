@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Grid } from 'antd-mobile'
+import { Button, Grid, Toast } from 'antd-mobile'
 import { SetOutline, RightOutline, LockOutline, TeamOutline } from 'antd-mobile-icons'
 import { get, baseFileURL } from '@/utils'
 import cx from 'classnames';
@@ -20,6 +20,12 @@ const Index = () => {
       console.log(res)
       setUserinfo(res)
     })
+  }
+  // 退出登录
+  const logout = () => {
+    localStorage.removeItem('token');
+    Toast.show({content: "退出登录成功"})
+    navigateTo('/')
   }
   useEffect(() => {
     getUserInfo()
@@ -84,7 +90,7 @@ const Index = () => {
         </div>
       </div>
       <div className={cx(s.logout)}>
-        <Button block color='primary'>退出登录</Button>
+        <Button block color='primary' onClick={logout}>退出登录</Button>
       </div>
     </div>
   </>)
