@@ -1,4 +1,5 @@
 import Login from "../container/Login/index.tsx";
+import Test from "../container/Test/index.tsx";
 import Home from '../container/Home/index.tsx';
 import Data from '../container/Data/index.tsx';
 import User from '../container/User/index.tsx';
@@ -9,6 +10,10 @@ const routes = [
   {
     path: "/",
     component: Login,
+  },
+  {
+    path: "/test",
+    component: Test,
   },
   {
     path: "/home",
